@@ -1,0 +1,12 @@
+Explored the data for the years 2025 (6 rounds), 2024 (5 rounds)
+Data was Extracted from the official website of josaa
+There were no null or duplicate values present
+
+Feature Engineering : 
+1. created a "seats" column (closing rank - opening rank)
+2. created a "ratio" column (closing rank / opening rank)
+3. created a "round" column (according to the data)
+
+Insights found : 
+1. there is a sudden increase in ratio  between the 4th and 6th round 
+2. 
