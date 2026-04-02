@@ -1,0 +1,44 @@
+{
+  "config": "Deep-Reg",
+  "params": {
+    "n_estimators": 500,
+    "max_depth": 6,
+    "learning_rate": 0.03,
+    "subsample": 0.75,
+    "colsample_bytree": 0.7,
+    "min_child_weight": 15,
+    "reg_alpha": 1.5,
+    "reg_lambda": 8.0,
+    "gamma": 0.5,
+    "objective": "reg:squarederror",
+    "random_state": 42
+  },
+  "log_transform": false,
+  "train_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "feature_cols": [
+    "year",
+    "round",
+    "institute",
+    "branch",
+    "quota",
+    "seat_type",
+    "gender",
+    "rank_gap",
+    "rank_mid",
+    "open_rank_t-1",
+    "close_rank_t-1",
+    "open_rank_t-2",
+    "close_rank_t-2",
+    "open_rank_mean_last_2",
+    "close_rank_mean_last_2",
+    "open_rank_std_last_2",
+    "close_rank_std_last_2"
+  ],
+  "dropped_cols": [
+    "type"
+  ]
+}

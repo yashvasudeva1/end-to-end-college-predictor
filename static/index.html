@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JoSAA College Predictor - Cutoff Analysis & Admission Chances</title>
+  <meta name="description"
+    content="ML-powered JoSAA counselling tool that predicts future cutoffs and estimates college admission chances using 5 years of historical data." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap"
+    rel="stylesheet" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body>
+
+  <!-- ── Interactive Background Canvas ── -->
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- ── Mobile Header ── -->
+  <div class="mobile-header">
+    <button class="burger-btn" id="burger-btn" aria-label="Open menu">☰</button>
+    <span class="mobile-brand">JoSAA Predictor</span>
+    <span></span>
+  </div>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="app-wrapper">
+
+    <!-- ══════════ SIDEBAR ══════════ -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <h1>JoSAA College<br />Predictor</h1>
+        <p>ML-Powered Counselling Tool</p>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-page="home">
+          <span class="nav-icon">⌂</span> Home
+        </button>
+        <button class="nav-item" data-page="data-overview">
+          <span class="nav-icon">▤</span> Data Overview
+        </button>
+        <button class="nav-item" data-page="data-analysis">
+          <span class="nav-icon">◈</span> Data Analysis
+        </button>
+        <button class="nav-item" data-page="trends">
+          <span class="nav-icon">⊿</span> Closing Rank Trends
+        </button>
+        <button class="nav-item" data-page="predict">
+          <span class="nav-icon">⎈</span> Predict Colleges
+        </button>
+        <button class="nav-item" data-page="performance">
+          <span class="nav-icon">◉</span> Model Performance
+        </button>
+        <button class="nav-item" data-page="methodology">
+          <span class="nav-icon">≡</span> Methodology
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div style="font-size:0.75rem; color:var(--text-muted);">
+          Built with XGBoost<br />5 Years of JoSAA Data
+        </div>
+      </div>
+    </aside>
+
+    <!-- ══════════ MAIN CONTENT ══════════ -->
+    <main class="main-content" id="main-content">
+
+      <!-- ─── HOME ─── -->
+      <section id="page-home" class="page active fade-up">
+        <div class="section-header">
+          <h2>JoSAA College Predictor</h2>
+          <p>A machine learning based system that predicts future JoSAA cutoffs and estimates college admission chances
+            using historical trends across 5 counselling years.</p>
+        </div>
+
+        <div class="stat-grid" id="stat-grid">
+          <div class="card stat-card">
+            <div class="stat-value" id="stat-institutes">-</div>
+            <div class="stat-label">Institutes</div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-value" id="stat-branches">-</div>
+            <div class="stat-label">Branches</div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-value" id="stat-years">-</div>
+            <div class="stat-label">Years of Data</div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-value" id="stat-records">-</div>
+            <div class="stat-label">Seat Records</div>
+          </div>
+        </div>
+
+        <hr class="section-divider" />
+
+        <div class="section-header">
+          <h2 style="font-size:1.3rem;">How to Use This Tool</h2>
+        </div>
+
+        <div class="steps-grid">
+          <div class="card step-card">
+            <div class="step-number">1</div>
+            <div>
+              <h4>Enter Your Rank</h4>
+              <p>Input your JEE rank in the Predict section to get personalized results.</p>
+            </div>
+          </div>
+          <div class="card step-card">
+            <div class="step-number">2</div>
+            <div>
+              <h4>View Your Chances</h4>
+              <p>See colleges labeled as Safe, Moderate, Risky, or Very Risky for your rank.</p>
+            </div>
+          </div>
+          <div class="card step-card">
+            <div class="step-number">3</div>
+            <div>
+              <h4>Analyze Trends</h4>
+              <p>Explore historical closing rank trends before finalizing your choices.</p>
+            </div>
+          </div>
+          <div class="card step-card">
+            <div class="step-number">4</div>
+            <div>
+              <h4>Make Decisions</h4>
+              <p>Use insights as decision support - predictions are probabilistic, not guarantees.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Developer Card -->
+        <div class="card footer-card">
+          <img
+            src="https://ui-avatars.com/api/?name=Yash+Vasudeva&size=120&background=e8943a&color=fff&bold=true&rounded=true"
+            class="footer-avatar" alt="Yash Vasudeva" />
+          <div class="footer-info">
+            <h4>Developed by Yash Vasudeva</h4>
+            <p>Data & AI Professional skilled in Data Analytics, Machine Learning, and Deep Learning. Builds intelligent
+              solutions from raw data.</p>
+            <div class="footer-links">
+              <a href="https://www.linkedin.com/in/yash-vasudeva/" target="_blank">LinkedIn</a>
+              <a href="https://github.com/yashvasudeva1" target="_blank">GitHub</a>
+              <a href="mailto:vasudevyash@gmail.com">Contact</a>
+              <a href="https://yashvasudeva.vercel.app/" target="_blank">Portfolio</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ─── DATA OVERVIEW ─── -->
+      <section id="page-data-overview" class="page">
+        <div class="section-header">
+          <h2>Dataset Overview</h2>
+          <p>Explore the raw JoSAA counselling dataset and observe how overall competition has evolved over the years.
+          </p>
+        </div>
+
+        <div class="chart-container">
+          <h3>Sample Records</h3>
+          <div class="data-table-wrapper" id="sample-table-wrapper">
+            <div class="loading-overlay">
+              <div class="spinner"></div> Loading data...
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-container">
+          <h3>Closing Rank Trend Over Years (Competition Intensity)</h3>
+          <div style="position:relative; height:400px;">
+            <canvas id="chart-overview-trend"></canvas>
+          </div>
+          <p class="chart-caption">Median closing rank reflects overall competition. Dashed lines show the middle 50% of
+            cutoffs (IQR). Lower value indicates more competition.</p>
+        </div>
+      </section>
+
+
+      <!-- ─── DATA ANALYSIS ─── -->
+      <section id="page-data-analysis" class="page">
+        <div class="section-header">
+          <h2>Exploratory Data Analysis</h2>
+          <p>Uncover patterns in JoSAA cutoffs - competition trends, round behaviour, and branch-level insights that
+            drive the predictive models.</p>
+        </div>
+
+        <div class="tab-bar" id="analysis-tabs">
+          <button class="tab-btn active" data-tab="tab-stability">Stability & Volatility</button>
+          <button class="tab-btn" data-tab="tab-yearwise">Year-wise Competition</button>
+          <button class="tab-btn" data-tab="tab-roundwise">Round-wise Behaviour</button>
+          <button class="tab-btn" data-tab="tab-insights">Institute & Branch</button>
+          <button class="tab-btn" data-tab="tab-conclusions">Key Conclusions</button>
+        </div>
+
+        <!-- Tab: Stability -->
+        <div class="tab-panel active" id="tab-stability">
+          <div class="chart-container">
+            <h3>Top 10 Most Stable Institutes (Lowest Yearly Variation)</h3>
+            <div style="position:relative;height:380px;">
+              <canvas id="chart-inst-stability"></canvas>
+            </div>
+            <div class="insight-box success">
+              ✓ Lower variation means cutoffs are consistent year-to-year, making predictions more reliable.
+            </div>
+          </div>
+          <div class="chart-container">
+            <h3>Top 10 Most Volatile Branches (High Yearly Variation)</h3>
+            <div style="position:relative;height:380px;">
+              <canvas id="chart-branch-volatility"></canvas>
+            </div>
+            <div class="insight-box warning">
+              ⚠ High volatility branches show unpredictable demand shifts and are harder to forecast accurately.
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Year-wise -->
+        <div class="tab-panel" id="tab-yearwise">
+          <div class="chart-container">
+            <h3>Median Closing Rank by Year (Lower = More Competition)</h3>
+            <div style="position:relative;height:380px;">
+              <canvas id="chart-year-trend"></canvas>
+            </div>
+            <div class="insight-box info">
+              ↓ A downward trend indicates increasing competition. ↑ An upward trend suggests easing cutoffs.
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Round-wise -->
+        <div class="tab-panel" id="tab-roundwise">
+          <div class="chart-container">
+            <h3>Median Closing Rank by Round</h3>
+            <div style="position:relative;height:380px;">
+              <canvas id="chart-round-trend"></canvas>
+            </div>
+            <div class="insight-box info">
+              Later rounds usually show relaxed cutoffs, but the magnitude varies across years and branches.
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Institute & Branch -->
+        <div class="tab-panel" id="tab-insights">
+          <div class="chart-row">
+            <div class="chart-container">
+              <h3>Top 10 Most Competitive Institutes</h3>
+              <div style="position:relative;height:380px;">
+                <canvas id="chart-comp-inst"></canvas>
+              </div>
+            </div>
+            <div class="chart-container">
+              <h3>Top 10 Most Competitive Branches</h3>
+              <div style="position:relative;height:380px;">
+                <canvas id="chart-comp-branch"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Conclusions -->
+        <div class="tab-panel" id="tab-conclusions">
+          <div class="conclusions-list">
+            <div class="card conclusion-item">
+              <h4><span class="conclusion-number">1</span>Competition is increasing over time</h4>
+              <p>Median closing ranks show a downward trend in recent years, indicating higher demand for top institutes
+                and branches.</p>
+            </div>
+            <div class="card conclusion-item">
+              <h4><span class="conclusion-number">2</span>Later rounds usually help, but not always</h4>
+              <p>While later JoSAA rounds generally relax cutoffs, highly competitive branches show minimal movement
+                after early rounds.</p>
+            </div>
+            <div class="card conclusion-item">
+              <h4><span class="conclusion-number">3</span>Branch matters more than institute in many cases</h4>
+              <p>Some mid-tier institutes with popular branches have tighter cutoffs than top institutes with less
+                demanded branches.</p>
+            </div>
+            <div class="card conclusion-item">
+              <h4><span class="conclusion-number">4</span>Cutoff behaviour is not uniform</h4>
+              <p>Year-to-year variation exists due to seat matrix changes, policy shifts, and applicant preferences.</p>
+            </div>
+            <div class="card conclusion-item">
+              <h4><span class="conclusion-number">5</span>Predictive modelling is justified</h4>
+              <p>The presence of temporal patterns and consistent trends validates the use of machine learning models
+                for cutoff prediction.</p>
+            </div>
+          </div>
+          <div class="insight-box success" style="margin-top:20px;">
+            ✓ These insights form the foundation for the predictive models used in the College Predictor.
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ─── CLOSING RANK TRENDS ─── -->
+      <section id="page-trends" class="page">
+        <div class="section-header">
+          <h2>Closing Rank Trends</h2>
+          <p>See how closing ranks change across JoSAA rounds, with separate lines for each year. Helps answer whether
+            waiting for later rounds was beneficial.</p>
+        </div>
+
+        <div class="selector-row">
+          <div class="select-group">
+            <label for="trend-institute">Institute</label>
+            <select id="trend-institute">
+              <option value="">Loading...</option>
+            </select>
+          </div>
+          <div class="select-group">
+            <label for="trend-branch">Branch</label>
+            <select id="trend-branch">
+              <option value="">Select institute first</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="chart-container" id="trend-chart-wrapper">
+          <h3 id="trend-chart-title">Round-wise Closing Rank Trend</h3>
+          <div style="position:relative;height:420px;">
+            <canvas id="chart-closing-trend"></canvas>
+          </div>
+          <p class="chart-caption">Each line represents a year. Steeper upward slopes indicate stronger relaxation in
+            later rounds.</p>
+        </div>
+      </section>
+
+
+      <!-- ─── PREDICT COLLEGES ─── -->
+      <section id="page-predict" class="page">
+        <div class="section-header">
+          <h2>Predict Your College Chances</h2>
+          <p>Enter your JEE rank to see which colleges fall under Safe, Moderate, Risky, or Very Risky categories based
+            on predicted 2026 cutoffs.</p>
+        </div>
+
+        <div class="predict-input-area">
+          <div class="select-group">
+            <label for="predict-rank">Your JEE Rank</label>
+            <input type="number" id="predict-rank" class="input-field" placeholder="e.g. 5000" min="1" />
+          </div>
+          <button class="btn-predict" id="btn-predict">
+            <span>⎈</span> Predict
+          </button>
+        </div>
+
+        <div id="predict-results">
+          <div class="empty-state">
+            <div class="empty-icon">⎈</div>
+            <p>Enter your rank and click Predict to see personalized results.</p>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ─── MODEL PERFORMANCE ─── -->
+      <section id="page-performance" class="page">
+        <div class="section-header">
+          <h2>Model Performance Evaluation</h2>
+          <p>Comparing train and test performance to assess model quality and whether it generalises well to unseen
+            data.</p>
+        </div>
+
+        <!-- Model Fit Verdict -->
+        <div id="model-fit-verdict" class="card" style="margin-bottom:28px; display:none;">
+          <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+            <div id="verdict-icon" style="font-size:2rem;"></div>
+            <div>
+              <h3 id="verdict-title" style="font-family:var(--font-display); font-size:1.1rem; margin-bottom:4px;"></h3>
+              <p id="verdict-text" style="font-size:0.88rem; color:var(--text-dim); line-height:1.55; max-width:700px;">
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Closing Rank Model: Train vs Test -->
+        <div class="chart-container" style="margin-bottom:24px;">
+          <h3>Closing Rank Model - Train vs Test Comparison</h3>
+          <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:16px;">Train: years 2023–2024
+            &nbsp;|&nbsp; Test: year 2025 (unseen)</p>
+          <div class="comparison-table-wrapper">
+            <table class="comparison-table" id="close-comparison-table">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Train</th>
+                  <th>Test</th>
+                  <th>Difference</th>
+                  <th>Assessment</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="metric-label">MAE</td>
+                  <td id="close-train-mae">-</td>
+                  <td id="close-test-mae">-</td>
+                  <td id="close-diff-mae">-</td>
+                  <td id="close-assess-mae">-</td>
+                </tr>
+                <tr>
+                  <td class="metric-label">RMSE</td>
+                  <td id="close-train-rmse">-</td>
+                  <td id="close-test-rmse">-</td>
+                  <td id="close-diff-rmse">-</td>
+                  <td id="close-assess-rmse">-</td>
+                </tr>
+                <tr>
+                  <td class="metric-label">R²</td>
+                  <td id="close-train-r2">-</td>
+                  <td id="close-test-r2">-</td>
+                  <td id="close-diff-r2">-</td>
+                  <td id="close-assess-r2">-</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="close-train-size" style="font-size:0.78rem; color:var(--text-muted); margin-top:10px;"></div>
+        </div>
+
+        <!-- Opening Rank Model: Train vs Test -->
+        <div class="chart-container" style="margin-bottom:24px;">
+          <h3>Opening Rank Model - Train vs Test Comparison</h3>
+          <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:16px;">Train: years 2023–2024
+            &nbsp;|&nbsp; Test: year 2025 (unseen)</p>
+          <div class="comparison-table-wrapper">
+            <table class="comparison-table" id="open-comparison-table">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Train</th>
+                  <th>Test</th>
+                  <th>Difference</th>
+                  <th>Assessment</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="metric-label">MAE</td>
+                  <td id="open-train-mae">-</td>
+                  <td id="open-test-mae">-</td>
+                  <td id="open-diff-mae">-</td>
+                  <td id="open-assess-mae">-</td>
+                </tr>
+                <tr>
+                  <td class="metric-label">RMSE</td>
+                  <td id="open-train-rmse">-</td>
+                  <td id="open-test-rmse">-</td>
+                  <td id="open-diff-rmse">-</td>
+                  <td id="open-assess-rmse">-</td>
+                </tr>
+                <tr>
+                  <td class="metric-label">R²</td>
+                  <td id="open-train-r2">-</td>
+                  <td id="open-test-r2">-</td>
+                  <td id="open-diff-r2">-</td>
+                  <td id="open-assess-r2">-</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="open-train-size" style="font-size:0.78rem; color:var(--text-muted); margin-top:10px;"></div>
+        </div>
+
+        <div class="chart-container">
+          <h3>Predicted vs Actual Closing Rank (Test Set - 2025)</h3>
+          <div style="position:relative;height:420px;">
+            <canvas id="chart-scatter"></canvas>
+          </div>
+          <p class="chart-caption">Test-set only scatter. Points closer to the diagonal line indicate more accurate
+            predictions on unseen data.</p>
+        </div>
+
+        <div class="chart-container">
+          <h3>Prediction Error Distribution (Test Set - 2025)</h3>
+          <div style="position:relative;height:380px;">
+            <canvas id="chart-error-hist"></canvas>
+          </div>
+          <p class="chart-caption">A centred, narrow distribution on test data confirms the model generalises well
+            without bias.</p>
+        </div>
+
+        <div class="card method-block" style="margin-top:24px;">
+          <h3>How to Read This</h3>
+          <ul>
+            <li><strong>Train vs Test gap:</strong> If test MAE is much higher than train MAE, the model is overfitting
+              - it memorises training data instead of learning patterns.</li>
+            <li><strong>R² close to 1:</strong> The model explains most cutoff variation. A large drop from train to
+              test R² signals overfitting.</li>
+            <li><strong>Good fit:</strong> Train and test metrics are close, and test R² remains high - the model
+              generalises well.</li>
+            <li>The model is best used for <strong>relative comparison</strong> between colleges rather than exact rank
+              prediction.</li>
+          </ul>
+        </div>
+      </section>
+
+
+      <!-- ─── METHODOLOGY ─── -->
+      <section id="page-methodology" class="page">
+        <div class="section-header">
+          <h2>Methodology & Notes</h2>
+          <p>Technical details about the predictive pipeline, feature engineering, and model approach.</p>
+        </div>
+
+        <div class="card method-block">
+          <h3>Model</h3>
+          <p>XGBoost Regressors trained separately for Opening Rank and Closing Rank prediction.</p>
+        </div>
+
+        <div class="card method-block">
+          <h3>Approach</h3>
+          <ul>
+            <li>Learns year-to-year cutoff movement from 5 years of official JoSAA data.</li>
+            <li>Uses lag and rolling features (moving averages, standard deviations) to capture temporal patterns.</li>
+            <li>Predicts numeric cutoffs instead of categorical labels for higher granularity.</li>
+            <li>Encodes categorical variables (institute, branch, quota, seat type, gender) using label encoding.</li>
+          </ul>
+        </div>
+
+        <div class="card method-block">
+          <h3>Why Trends Matter</h3>
+          <ul>
+            <li>Sudden rank jumps indicate changing demand for specific branches or institutes.</li>
+            <li>Stable trends give safer counselling signals and more reliable predictions.</li>
+            <li>Round-wise analysis reveals whether later rounds historically benefit candidates.</li>
+          </ul>
+        </div>
+
+        <div class="card method-block">
+          <h3>Data Pipeline</h3>
+          <ul>
+            <li>Data extracted from official JoSAA website across years 2021–2025.</li>
+            <li>Cleaned for duplicates and null values.</li>
+            <li>Feature engineering adds rank gap, rank ratio, rolling statistics, and lag features.</li>
+            <li>Train-test evaluation ensures model generalisation before deployment.</li>
+          </ul>
+        </div>
+
+        <div class="disclaimer-box">
+          <h4>Disclaimer</h4>
+          <p>This tool provides probabilistic guidance, not guarantees. JoSAA policies, seat matrices, and application
+            patterns can change each year. Use this as one input in your decision-making process alongside official
+            counselling data.</p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+
+</html>
