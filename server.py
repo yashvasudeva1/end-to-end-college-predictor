@@ -278,6 +278,12 @@ def predict():
 
 @app.route("/api/model-performance")
 def model_performance():
+    metrics_cache_file = "model_metrics.json"
+    # Serve pre-computed metrics if available to make the request instantaneous
+    if os.path.exists(metrics_cache_file):
+        with open(metrics_cache_file, "r") as f:
+            return jsonify(json.load(f))
+
     feat_cols = [c for c in feature_df.columns if c not in ["open_rank", "close_rank"]]
 
     # Train / Test split (matching new model validation)
@@ -285,6 +291,8 @@ def model_performance():
     test_df = feature_df[feature_df["year"] == 2025]
 
     def metrics(y_true, y_pred):
+        if len(y_true) == 0:
+            return {"mae": 0.0, "rmse": 0.0, "r2": 0.0}
         return {
             "mae": round(mean_absolute_error(y_true, y_pred), 1),
             "rmse": round(float(np.sqrt(mean_squared_error(y_true, y_pred))), 1),
@@ -309,29 +317,33 @@ def model_performance():
     # Scatter - test set only (honest view of generalisation)
     rng = np.random.RandomState(42)
     n_scatter = min(5000, len(test_df))
-    idx = rng.choice(len(test_df), n_scatter, replace=False)
+    
+    if len(test_df) > 0:
+        idx = rng.choice(len(test_df), n_scatter, replace=False)
+        scatter = [
+            {
+                "actual": round(float(test_df["close_rank"].iloc[i]), 1),
+                "predicted": round(float(test_close_pred[i]), 1),
+            }
+            for i in idx
+        ]
 
-    scatter = [
-        {
-            "actual": round(float(test_df["close_rank"].iloc[i]), 1),
-            "predicted": round(float(test_close_pred[i]), 1),
-        }
-        for i in idx
-    ]
+        # Error histogram - test set
+        test_errors = test_close_pred - test_df["close_rank"].values
+        counts, edges = np.histogram(test_errors, bins=50)
+        histogram = [
+            {
+                "bin_start": round(float(edges[i]), 1),
+                "bin_end": round(float(edges[i + 1]), 1),
+                "count": int(counts[i]),
+            }
+            for i in range(len(counts))
+        ]
+    else:
+        scatter = []
+        histogram = []
 
-    # Error histogram - test set
-    test_errors = test_close_pred - test_df["close_rank"].values
-    counts, edges = np.histogram(test_errors, bins=50)
-    histogram = [
-        {
-            "bin_start": round(float(edges[i]), 1),
-            "bin_end": round(float(edges[i + 1]), 1),
-            "count": int(counts[i]),
-        }
-        for i in range(len(counts))
-    ]
-
-    return jsonify({
+    ans = {
         "train": {
             "opening": metrics(train_df["open_rank"], train_open_pred),
             "closing": metrics(train_df["close_rank"], train_close_pred),
@@ -350,7 +362,15 @@ def model_performance():
         },
         "scatter": scatter,
         "histogram": histogram,
-    })
+    }
+    
+    try:
+        with open(metrics_cache_file, "w") as f:
+            json.dump(ans, f)
+    except Exception:
+        pass
+
+    return jsonify(ans)
 
 
 # ──────────────── RUN ────────────────
